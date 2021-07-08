@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt') ;
 const Sequelize = require("sequelize")
 const sequelize = require("./database.js")
 
@@ -19,7 +20,17 @@ User.init(
         sequelize,
         modelName: "user",
         timestamps: false,
-    }
+        hooks: {
+            beforeCreate: async (user) => {
+            const saltRounds = 10
+            const salt = await bcrypt.genSalt(saltRounds)
+            user.password = await bcrypt.hash(user.password, salt)
+        },
+    }}
 )
+
+User.prototype.checkPassword = async function (password) {
+  return await bcrypt.compare(password, this.password)
+}
 
 module.exports = User

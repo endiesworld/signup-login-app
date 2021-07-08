@@ -1,7 +1,8 @@
-const Sequelize = require("sequelize")
+const Sequelize = require("sequelize");
+require('dotenv').config() ;
 
 const user = "postgres" ;
-const password = "insert password here" ;
+const password = process.env.DB_PASSWORD ;
 const host = "localhost"
 const database = "testingpassport"
 
@@ -11,7 +12,9 @@ const sequelize = new Sequelize(database, user, password, {
   logging: false,
 });
 
-async function testConnection(){ 
+/**
+ * TEST DATABASE CONNECTION
+ * async function testConnection(){ 
 try {
   await sequelize.authenticate();
   console.log('Connection has been established successfully.');
@@ -22,5 +25,7 @@ try {
 }
 
 testConnection() ;
+ */
+
 
 module.exports = sequelize
