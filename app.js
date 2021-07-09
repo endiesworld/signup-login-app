@@ -3,38 +3,31 @@ const express = require("express") ;
 const passport = require('passport') ;
 const session = require('express-session') ;
 const SequelizeStore = require('connect-session-sequelize')(session.Store) ;
-const LocalStrategy = require('passport-local').Strategy ;
 const sequelize = require('./database.js');
 const User = require("./user.js") ;
-User.sync({ alter: true });
-
-//require('passport') ;
+const passportConfig = require('./passport.js') ;
 
 require('dotenv').config() ;
 
-//database initialization section
-
-
-//initialize sequelizestore which connects session to sequelize database. This process prepares and generates a session table in our postgres database
+/**
+ * initialize sequelizestore which connects session to sequelize database.
+ *This process prepares and generates a session table in our postgres database
+*/
 const sessionStore = new SequelizeStore({
   db: sequelize,
 })
+User.sync({ alter: true });
 sessionStore.sync() ;
 
 const app = express()
 app.set("view engine", "pug");
-//app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true })) ;
+passportConfig() ;
 
-/**
- * add middlewares to express in this order:
- * app.use(session);
- * app.use(passport.initialize())
- * app.use(passport.session())
- */
+
 app.use(
   session({
-    secret: process.env.SESSION_SECRETE, //enter a random string here
+    secret: process.env.SESSION_SECRETE, 
     resave: false,
     saveUninitialized: true,
     name: 'testingpassport',
@@ -48,41 +41,7 @@ app.use(
   passport.session()
 );
 
-async function verifyCallback (email, password, done){
-    const user =  await User.findOne({where:{email:email}}) ;
-    if(!user){
-        return done('User not found', null) ;
-    }
 
-    const isPasswordValid = await user.checkPassword(password) ;
-    if (!isPasswordValid) {
-        done("Email and password do not match", null)
-        return
-    }
-
-    done(null, user)
-}
-
-const localStrategy = new LocalStrategy(
-    {
-        usernameField: "email",
-        passwordField: "password",
-    },
-    verifyCallback) ;
-
-
-
-passport.serializeUser((user, done) => {
-  done(null, user.email)
-})
-
-passport.deserializeUser((email, done) => {
-  User.findOne({ where: { email: email } }).then((user) => {
-    done(null, user)
-  })
-})
-
-passport.use(localStrategy) ;
 
 app.get('/', (req, res) =>
   req.session.passport ? res.render('index') : res.render('signup')
