@@ -1,10 +1,7 @@
-const passport = require('passport') ;
 const LocalStrategy = require('passport-local').Strategy ;
 const User = require("./user.js") ;
 
-function passportConfig() {
-
-console.log('passport initialization...') ;
+function passportConfig(passport) {
 
 async function verifyCallback (email, password, done){
     
@@ -19,14 +16,11 @@ async function verifyCallback (email, password, done){
             done("Email and password do not match", null)
             return
         }
-       return done(null, user) ;
+        return done(null, user) ;
     }catch(err){
         if (err) { return done(err); }
     }
-
-    
 }
-
 const localStrategy = new LocalStrategy(
     {
         usernameField: "email",
@@ -34,8 +28,6 @@ const localStrategy = new LocalStrategy(
     },
     verifyCallback
 ) ;
-
-
 
 passport.serializeUser((user, done) => {
     done(null, user.email)
@@ -47,7 +39,7 @@ passport.deserializeUser((email, done) => {
     })
 })
 
-passport.use(localStrategy) ;
+return localStrategy ;
 
 }
 

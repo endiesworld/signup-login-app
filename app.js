@@ -22,7 +22,7 @@ sessionStore.sync() ;
 const app = express()
 app.set("view engine", "pug");
 app.use(express.urlencoded({ extended: true })) ;
-passportConfig() ;
+
 
 
 app.use(
@@ -40,7 +40,7 @@ app.use(
   passport.initialize(),
   passport.session()
 );
-
+passport.use(passportConfig(passport)) ;
 
 
 app.get('/', (req, res) =>
@@ -68,21 +68,26 @@ app.post("/register", async (req, res) => {
 });
 
 app.get("/login", (req, res) =>{
-  console.log('login session') ;
   return req.session.passport ? res.render("index") : res.render("login")}
 );
 
 app.post('/login', async (req, res) => {
+  
   passport.authenticate('local', (err, user, info) => {
     if (err) return res.render('error', { message: err })
     if (!user) return res.render('error', { message: 'No user matching credentials' })
-
     req.login(user, (err) => {
       if (err) return res.render('error', { message: err })
-      return res.redirect('/')
+      res.json({ id: req.session, user: req.user});
+      //return res.redirect('/')
     })
   })(req, res)
 })
+
+// app.post('/login',passport.authenticate('local'),
+//   function(req, res) {
+//     res.json({ id: req.session, user: req.user});
+//   });
 
 app.get("/logout", async (req, res) => {
   req.logout()
@@ -91,4 +96,4 @@ app.get("/logout", async (req, res) => {
 })
 
 
-app.listen(3000, () => console.log("Server ready"))
+app.listen(3001, () => console.log("Server ready"))

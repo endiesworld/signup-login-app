@@ -1,2 +1,13 @@
 /node_modules
 .env
+/publicKey.txt
+/privateKey.txt
+
+publicKey.txt
+privateKey.txt
+
+/publicKey.pem
+/privateKey.pem
+
+publicKey.pem
+privateKey.pem
